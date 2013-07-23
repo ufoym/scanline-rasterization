@@ -432,6 +432,18 @@ void set_color(ColorFunction<3,2> &color)
 	color.comp[2].c[2] = 0;
 }
 
+void create_bezigon(const double * data, const int n, Array<Curve<4,2> > &cubics)
+{
+	for (int i = 0; i < n; i += 6) {
+		Curve<4,2> cubic;
+		cubic.p[0].set(data[i],			data[i+1]);
+		cubic.p[1].set(data[i+2],		data[i+3]);
+		cubic.p[2].set(data[i+4],		data[i+5]);
+		cubic.p[3].set(data[(i+6)%n],	data[(i+7)%n]);
+		cubics.push_back(cubic);
+	}
+}
+
 int main(int argc, char **argv)
 {
 	int timing_iters = 5;
@@ -450,7 +462,7 @@ int main(int argc, char **argv)
 	//for (int n_test = 0; n_test < 3; n_test++)
 	//int n_test = 1;
 	{
-		int img_w = 128;
+		int img_w = 8;
 		int img_h = img_w;
 
 		//-- curves
@@ -459,33 +471,9 @@ int main(int argc, char **argv)
 		Array<Curve<4,2> > cubics;
 		Array<Curve<3,3> > rquads;
 
-		//create_quadratic_arc(lines, quads, cubics, rquads, img_w);
-		//create_cubic_arc(lines, quads, cubics, rquads, img_w);
-		create_apollonian(lines, quads, cubics, rquads, img_w);
-		//create_circle(lines, quads, cubics, rquads, img_w);
-		//create_diamond(lines, quads, cubics, rquads, img_w);
-		//create_radial(lines, quads, cubics, rquads, img_w);
-		//create_svg(lines, quads, cubics, rquads); // 316x613
-
-		/*
-		char *test_names[3] = {"radial", "perspective", "zone"};
-		printf("\nTest %s:\n", test_names[n_test]);
-		if (n_test == 0)
-		{
-			img_size = 64;
-			create_radial_paper(lines, quads, cubics, rquads, img_size);
-		}
-		if (n_test == 1)
-		{
-			img_size = 128;
-			create_perspective_paper(lines, quads, cubics, rquads, img_size);
-		}
-		if (n_test == 2)
-		{
-			img_size = 64;
-			create_zone_paper(lines, quads, cubics, rquads, img_size);
-		}*/
-
+		const int n = 12;
+		double data[] = {1,1, 7,1, 7,7, 1,7, 1,3, 1,2};
+		create_bezigon(data, n, cubics);
 		
 		//-- image
 		Array2D<vect1d> img;
