@@ -492,7 +492,6 @@ int main(int argc, char **argv)
 		//rasterize<FilterType::W>(img, color, &lines, &filter.filter22[0], &quads, &filter.filter32[0], &cubics, &filter.filter42[0], &rquads, &filter.filter33[0]);
 
 		//-- save
-		flip_img(img);
 		if (img.data[0].DIMENSION == 1)
 			save_pgm(img, "output.pgm", FilterType::W);
 		else if (img.data[0].DIMENSION == 3)
