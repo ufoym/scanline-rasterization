@@ -462,7 +462,7 @@ int main(int argc, char **argv)
 	//for (int n_test = 0; n_test < 3; n_test++)
 	//int n_test = 1;
 	{
-		int img_w = 8;
+		int img_w = 1280;
 		int img_h = img_w;
 
 		//-- curves
@@ -472,7 +472,7 @@ int main(int argc, char **argv)
 		Array<Curve<3,3> > rquads;
 
 		const int n = 12;
-		double data[] = {1,1, 7,1, 7,7, 1,7, 1,3, 1,2};
+		double data[] = {100,100, 700,100, 700,700, 100,700, 100,300, 100,200};
 		create_bezigon(data, n, cubics);
 		
 		//-- image
@@ -483,14 +483,9 @@ int main(int argc, char **argv)
 		img = zero;
 
 		//-- color
-		ColorFunction<1,1> color; set_color(color); // B/W constant color
-		//ColorFunction<1,2> color; set_color(color); // B/W linear color
-		//ColorFunction<3,1> color; set_color(color); // RGB constant color
-		//ColorFunction<3,2> color; set_color(color); // RGB linear color
-
+		ColorFunction<1,1> color; set_color(color);
 		scale_color(color, img_w);
-
-
+		
 		//-- rasterize
 		RasterizerInstance<FilterType::W, 1, 1> inst(img, lines.s, quads.s, cubics.s, rquads.s);
 		rasterize(inst, color, &lines, &filter.filter22[0], &quads, &filter.filter32[0], &cubics, &filter.filter42[0], &rquads, &filter.filter33[0]);
@@ -502,59 +497,7 @@ int main(int argc, char **argv)
 			save_pgm(img, "output.pgm", FilterType::W);
 		else if (img.data[0].DIMENSION == 3)
 			save_ppm(img, "output.ppm", FilterType::W);
-		printf("Wrote serial image.\n");
-
-
-		//-- rasterize
-		img = zero;
-		{
-			PRasterizerInstance<FilterType::W, 1, 1> pinst(img, lines.s, quads.s, cubics.s, rquads.s);
-			rasterize_parallel(pinst, color, &lines, &filter.filter22[0], &quads, &filter.filter32[0], &cubics, &filter.filter42[0], &rquads, &filter.filter33[0]);
-			//rasterize_parallel<FilterType::W>(img, color, &lines, &filter.filter22[0], &quads, &filter.filter32[0], &cubics, &filter.filter42[0], &rquads, &filter.filter33[0]);
-		}
-
-		//-- save
-		flip_img(img);
-		if (img.data[0].DIMENSION == 1)
-			save_pgm(img, "output_p.pgm", FilterType::W);
-		else if (img.data[0].DIMENSION == 3)
-			save_ppm(img, "output_p.ppm", FilterType::W);
-		printf("Wrote parallel image.\n");
-
-		//-- timing
-		double t_serial, t_parallel;
-		{
-			double t_start = get_time();
-			for (int i = 0; i < timing_iters; i++)
-			{
-				rasterize(inst, color, &lines, &filter.filter22[0], &quads, &filter.filter32[0], &cubics, &filter.filter42[0], &rquads, &filter.filter33[0]);
-				//rasterize<FilterType::W>(img, color, &lines, &filter.filter22[0], &quads, &filter.filter32[0], &cubics, &filter.filter42[0], &rquads, &filter.filter33[0]);
-			}
-			double t_end = get_time();
-			t_serial = (t_end - t_start) / timing_iters;
-			printf("time serial (n=1) = %f\n", 1000 * t_serial);
-		}
-
-		for (int n_threads = 2; n_threads <= 4; n_threads++)
-		{
-			omp_set_num_threads(n_threads);
-
-			{
-				PRasterizerInstance<FilterType::W, 1, 1> pinst(img, lines.s, quads.s, cubics.s, rquads.s);
-				double t_start = get_time();
-				for (int i = 0; i < timing_iters; i++)
-				{
-					rasterize_parallel(pinst, color, &lines, &filter.filter22[0], &quads, &filter.filter32[0], &cubics, &filter.filter42[0], &rquads, &filter.filter33[0]);
-					//rasterize_parallel<FilterType::W>(img, color, &lines, &filter.filter22[0], &quads, &filter.filter32[0], &cubics, &filter.filter42[0], &rquads, &filter.filter33[0]);
-				}
-				double t_end = get_time();
-				t_parallel = (t_end - t_start) / timing_iters;
-				printf("time parallel (n=%d) = %f\n", n_threads, 1000 * t_parallel);
-			}
-			printf("speedup = %f\n", t_serial / t_parallel);
-		}
 	}
 
-	//fclose(stdout);
 	return 0;
 }
