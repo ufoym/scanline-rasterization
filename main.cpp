@@ -2,10 +2,12 @@
 #include <string>
 #include "rasterizer.h"
 #include "filter_box.h"
-#include "save_ppm.h"
 
-double * rasterize_bezigon(const double * data, const int n, 
-						   const int w, const int h)
+
+#define DLLEXPORT extern "C" __declspec(dllexport)
+
+DLLEXPORT double * rasterize_bezigon(const double * data, const int n, 
+									 const int w, const int h)
 {
 	//-- filter
 	typedef FilterBox<1> FilterType;
