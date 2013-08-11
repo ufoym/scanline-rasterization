@@ -6,8 +6,8 @@
 
 #define DLLEXPORT extern "C" __declspec(dllexport)
 
-DLLEXPORT double * rasterize_bezigon(const double * data, const int n, 
-									 const int w, const int h)
+DLLEXPORT void rasterize_bezigon(double * alpha_arr, 
+	const double * data, const int n, const int w, const int h)
 {
 	//-- filter
 	typedef FilterBox<1> FilterType;
@@ -47,22 +47,10 @@ DLLEXPORT double * rasterize_bezigon(const double * data, const int n,
 		&rquads, &filter.filter33[0]);
 
 	//-- output
-	double * alpha_arr = new double [h * w];
 	for (int i = 0; i < h; i++) {
 		for (int j = 0; j < w; j++) {
 			int idx = i*w + j;
 			alpha_arr[idx] = img.data[idx].getitem(0);
 		}
 	}
-	return alpha_arr;
-}
-
-int main(int argc, char **argv)
-{
-	const int n = 12, h = 8, w = 8;
-	double data[] = {1,1, 7,1, 7,7, 1,7, 1,3, 1,2};
-	double * alpha_arr = rasterize_bezigon(data, n, w, h);
-	for (int i = 0; i < h * w; i++)
-		printf("%f ", alpha_arr[i]);
-	return 0;
 }
